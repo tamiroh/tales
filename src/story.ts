@@ -26,6 +26,7 @@ const systemPrompt = `
 求められた本文または選択肢だけを返す。
 JSON、Markdown、箇条書き、説明は禁止。
 `.trim();
+const recentHistoryLimit = 3;
 
 export class StoryEngine {
   private session: LanguageModel | null = null;
@@ -83,17 +84,23 @@ export class StoryEngine {
   public async continue(currentBeat: StoryBeat, choice: StoryChoice, onProgress?: ProgressHandler) {
     await this.prepare(onProgress);
     this.history.push({ scene: currentBeat.stateSummary || currentBeat.scene, choice });
+    const recentHistory = this.recentHistory;
+    const firstTurn = this.history.length - recentHistory.length + 1;
 
     return this.generate(`
 本文だけ。1-2文、180字以内。直前の選択を反映。選択肢と問いかけは禁止。
-${this.history
-  .map((record, index) => `${index + 1}. ${record.scene}\n選択: ${record.choice.label}`)
+${recentHistory
+  .map((record, index) => `${firstTurn + index}. ${record.scene}\n選択: ${record.choice.label}`)
   .join("\n\n")}
 `);
   }
 
   public get turnCount() {
     return this.history.length;
+  }
+
+  private get recentHistory() {
+    return this.history.slice(-recentHistoryLimit);
   }
 
   public destroy() {
