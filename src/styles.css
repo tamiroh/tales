@@ -1,6 +1,6 @@
 :root {
-  color: #222;
-  background: #fff;
+  color: var(--text-color, #222);
+  background: var(--background-color, #fff);
   font-family:
     ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -10,13 +10,30 @@
   -webkit-font-smoothing: antialiased;
 }
 
+html {
+  min-height: 100%;
+  background: var(--background-color, #fff);
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   min-width: 320px;
+  min-height: 100vh;
   margin: 0;
+  background: var(--background-color, #fff);
+  color: var(--text-color, #222);
+  transition:
+    background-color 900ms ease,
+    color 600ms ease;
+}
+
+#app {
+  min-height: 100vh;
+  background: var(--background-color, #fff);
+  transition: background-color 900ms ease;
 }
 
 button,
@@ -69,10 +86,10 @@ label {
 select,
 textarea,
 button {
-  border: 1px solid #bbb;
+  border: 1px solid var(--border-color, #bbb);
   border-radius: 4px;
-  background: #fff;
-  color: #222;
+  background: var(--control-color, #fff);
+  color: var(--text-color, #222);
 }
 
 select,
@@ -121,7 +138,7 @@ button {
 .status {
   min-height: 1.7em;
   margin: 20px 0 0;
-  color: #555;
+  color: var(--text-color, #555);
 }
 
 .hidden {

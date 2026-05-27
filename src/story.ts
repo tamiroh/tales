@@ -6,6 +6,7 @@ export type StoryChoice = {
 export type StoryBeat = {
   scene: string;
   choices: StoryChoice[];
+  backgroundColor: string;
   stateSummary: string;
 };
 
@@ -99,6 +100,7 @@ ${history
     }
 
     const scene = (await this.session.prompt(prompt)).trim();
+    const backgroundColor = await this.promptBackgroundColor(scene);
     const choiceA = await this.promptChoice("A", scene);
     const choiceB = await this.promptChoice("B", scene, choiceA);
 
@@ -108,6 +110,7 @@ ${history
         { id: "A", label: choiceA },
         { id: "B", label: choiceB },
       ],
+      backgroundColor,
       stateSummary: scene.replace(/\s+/g, " ").slice(0, 80),
     };
   }
@@ -124,5 +127,20 @@ ${scene}
 ${otherChoice ? `「${otherChoice}」とは別方向。` : "能動的な行動。"}
 `)
     ).trim();
+  }
+
+  private async promptBackgroundColor(scene: string) {
+    if (!this.session) {
+      throw new Error("AI セッションが初期化されていません。");
+    }
+
+    const color = (
+      await this.session.prompt(`
+本文の雰囲気に合う背景色を1つだけ。#RRGGBBだけを返す。
+${scene}
+`)
+    ).trim();
+
+    return /^#[0-9a-fA-F]{6}$/.test(color) ? color : "#ffffff";
   }
 }

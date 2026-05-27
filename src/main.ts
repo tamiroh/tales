@@ -100,6 +100,7 @@ function render() {
   }
 
   sceneText.textContent = currentBeat.scene;
+  setTheme(currentBeat.backgroundColor);
   choices.innerHTML = "";
 
   for (const choice of currentBeat.choices) {
@@ -141,6 +142,7 @@ function resetStory() {
   history.length = 0;
   currentBeat = null;
   engine.destroy();
+  clearTheme();
   sceneText.textContent = "";
   choices.innerHTML = "";
   renderHistory();
@@ -152,4 +154,26 @@ function resetStory() {
 
 function setStatus(message: string) {
   statusText.textContent = message;
+}
+
+function setTheme(backgroundColor: string) {
+  document.body.style.setProperty("--background-color", backgroundColor);
+  document.body.style.setProperty("--text-color", isDark(backgroundColor) ? "#fff" : "#222");
+  document.body.style.setProperty("--border-color", isDark(backgroundColor) ? "#ffffff80" : "#00000055");
+  document.body.style.setProperty("--control-color", isDark(backgroundColor) ? "#111" : "#fff");
+}
+
+function clearTheme() {
+  document.body.style.removeProperty("--background-color");
+  document.body.style.removeProperty("--text-color");
+  document.body.style.removeProperty("--border-color");
+  document.body.style.removeProperty("--control-color");
+}
+
+function isDark(color: string) {
+  const red = Number.parseInt(color.slice(1, 3), 16);
+  const green = Number.parseInt(color.slice(3, 5), 16);
+  const blue = Number.parseInt(color.slice(5, 7), 16);
+
+  return (red * 299 + green * 587 + blue * 114) / 1000 < 140;
 }
