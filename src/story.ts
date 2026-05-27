@@ -10,7 +10,7 @@ export type StoryBeat = {
   stateSummary: string;
 };
 
-export type ChoiceRecord = {
+type ChoiceRecord = {
   scene: string;
   choice: StoryChoice;
 };
@@ -29,6 +29,7 @@ JSON、Markdown、箇条書き、説明は禁止。
 
 export class StoryEngine {
   private session: LanguageModel | null = null;
+  private history: ChoiceRecord[] = [];
 
   public async prepare(onProgress?: ProgressHandler) {
     if (this.session) {
@@ -70,6 +71,7 @@ export class StoryEngine {
 
   public async start(seed: StorySeed, onProgress?: ProgressHandler) {
     await this.prepare(onProgress);
+    this.history = [];
 
     return this.generate(`
 本文だけ。1-2文、180字以内。選択肢と問いかけは禁止。
@@ -78,20 +80,26 @@ export class StoryEngine {
 `);
   }
 
-  public async continue(history: ChoiceRecord[], onProgress?: ProgressHandler) {
+  public async continue(currentBeat: StoryBeat, choice: StoryChoice, onProgress?: ProgressHandler) {
     await this.prepare(onProgress);
+    this.history.push({ scene: currentBeat.stateSummary || currentBeat.scene, choice });
 
     return this.generate(`
 本文だけ。1-2文、180字以内。直前の選択を反映。選択肢と問いかけは禁止。
-${history
+${this.history
   .map((record, index) => `${index + 1}. ${record.scene}\n選択: ${record.choice.label}`)
   .join("\n\n")}
 `);
   }
 
+  public get turnCount() {
+    return this.history.length;
+  }
+
   public destroy() {
     this.session?.destroy();
     this.session = null;
+    this.history = [];
   }
 
   private async generate(prompt: string) {

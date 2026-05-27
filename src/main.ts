@@ -1,10 +1,9 @@
 import "./styles.css";
-import { StoryEngine, type ChoiceRecord, type StoryBeat, type StoryChoice } from "./story";
+import { StoryEngine, type StoryBeat, type StoryChoice } from "./story";
 
 const genres = ["幻想譚", "SF", "ミステリー", "冒険", "日常の異変"];
 
 const engine = new StoryEngine();
-const history: ChoiceRecord[] = [];
 
 let currentBeat: StoryBeat | null = null;
 let isGenerating = false;
@@ -57,7 +56,6 @@ async function runStart() {
   }
 
   await generate(async () => {
-    history.length = 0;
     currentBeat = await engine.start({ genre: genreSelect.value }, setStatus);
     setupPanel.classList.add("hidden");
     scenePanel.classList.remove("hidden");
@@ -71,10 +69,10 @@ async function choose(choice: StoryChoice) {
     return;
   }
 
-  history.push({ scene: currentBeat.stateSummary || currentBeat.scene, choice });
+  const beat = currentBeat;
 
   await generate(async () => {
-    currentBeat = await engine.continue(history, setStatus);
+    currentBeat = await engine.continue(beat, choice, setStatus);
     render();
   });
 }
@@ -122,7 +120,7 @@ function render() {
 }
 
 function renderHistory() {
-  document.title = history.length ? `tales (${history.length})` : "tales";
+  document.title = engine.turnCount ? `tales (${engine.turnCount})` : "tales";
 }
 
 function renderDisabledState() {
@@ -139,7 +137,6 @@ function resetStory() {
     return;
   }
 
-  history.length = 0;
   currentBeat = null;
   engine.destroy();
   clearTheme();
