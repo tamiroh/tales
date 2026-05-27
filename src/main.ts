@@ -12,7 +12,7 @@ let isGenerating = false;
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <main class="app-shell" aria-live="polite">
     <header>
-      <h1>tales</h1>
+      <h1></h1>
       <button class="hidden" id="resetButton" type="button">最初から</button>
     </header>
 
