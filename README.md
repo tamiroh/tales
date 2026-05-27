@@ -1,3 +1,18 @@
 # tales
 
-ブラウザ上で動く、AI 生成の分岐型ストーリーアプリです。Chrome の組み込み AI API (`LanguageModel`) を使って、読者が選んだ内容を次の短い物語生成に反映します。
+A browser-based branching story app powered by Chrome's built-in AI API (`LanguageModel`). Each choice influences the next short story segment.
+
+## Development
+
+```sh
+npm install
+npm run dev
+```
+
+## Deployment
+
+Pushes to the `main` branch deploy the app to GitHub Pages.
+
+```text
+https://tamiroh.github.io/tales/
+```
