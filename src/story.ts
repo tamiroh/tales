@@ -73,10 +73,12 @@ export class StoryEngine {
   public async start(seed: StorySeed, onProgress?: ProgressHandler) {
     await this.prepare(onProgress);
     this.history = [];
+    const plot = await this.promptPlot(seed.genre);
 
     return this.generate(`
 本文だけ。1-2文、180字以内。選択肢と問いかけは禁止。
 ジャンル: ${seed.genre}
+プロット: ${plot}
 主語は「あなた」。
 `);
   }
@@ -161,5 +163,25 @@ ${scene}
     ).trim();
 
     return /^#[0-9a-fA-F]{6}$/.test(color) ? color : "#ffffff";
+  }
+
+  private async promptPlot(genre: string) {
+    const session = await this.createSession({ temperature: 1, topK: 20 });
+
+    try {
+      return (
+        await session.prompt(`${genre}の導入プロットを1行だけ。場所、時、異変、持ち物を含める。`)
+      ).trim();
+    } finally {
+      session.destroy();
+    }
+  }
+
+  private async createSession(options?: { temperature?: number; topK?: number }) {
+    return LanguageModel.create({
+      initialPrompts: [{ role: "system", content: systemPrompt }],
+      temperature: options?.temperature ?? 0.9,
+      topK: options?.topK ?? 6,
+    });
   }
 }
