@@ -13,6 +13,7 @@
 html {
   min-height: 100%;
   background: var(--background-color, #fff);
+  overflow-anchor: none;
 }
 
 * {
@@ -54,15 +55,23 @@ button:disabled {
 .app-shell {
   width: min(100% - 32px, 680px);
   margin: 0 auto;
-  padding: 32px 0;
+  padding: 96px 0 32px;
 }
 
 header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 32px;
+  width: min(100% - 32px, 680px);
+  padding: 32px 0 16px;
+  background: var(--background-color, #fff);
+  transform: translateX(-50%);
+  transition: background-color 900ms ease;
 }
 
 h1 {
@@ -76,6 +85,27 @@ h1 {
 .scene {
   display: grid;
   gap: 16px;
+  padding-bottom: 100vh;
+}
+
+.story-log {
+  display: grid;
+  gap: 28px;
+}
+
+.story-log-item {
+  display: grid;
+  gap: 8px;
+  opacity: 0.72;
+}
+
+.story-log-item p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.story-log-choice {
+  font-weight: 700;
 }
 
 label {

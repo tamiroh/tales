@@ -10,7 +10,7 @@ export type StoryBeat = {
   stateSummary: string;
 };
 
-type ChoiceRecord = {
+export type StoryRecord = {
   scene: string;
   choice: StoryChoice;
 };
@@ -30,7 +30,7 @@ const recentHistoryLimit = 3;
 
 export class StoryEngine {
   private session: LanguageModel | null = null;
-  private history: ChoiceRecord[] = [];
+  private history: StoryRecord[] = [];
 
   public async prepare(onProgress?: ProgressHandler) {
     if (this.session) {
@@ -83,7 +83,7 @@ export class StoryEngine {
 
   public async continue(currentBeat: StoryBeat, choice: StoryChoice, onProgress?: ProgressHandler) {
     await this.prepare(onProgress);
-    this.history.push({ scene: currentBeat.stateSummary || currentBeat.scene, choice });
+    this.history.push({ scene: currentBeat.scene, choice });
     const recentHistory = this.recentHistory;
     const firstTurn = this.history.length - recentHistory.length + 1;
 
@@ -97,6 +97,10 @@ ${recentHistory
 
   public get turnCount() {
     return this.history.length;
+  }
+
+  public get records(): readonly StoryRecord[] {
+    return this.history;
   }
 
   private get recentHistory() {

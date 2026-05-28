@@ -27,6 +27,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     </section>
 
     <section class="scene hidden" id="scenePanel">
+      <div class="story-log" id="storyLog"></div>
       <p id="sceneText"></p>
       <div class="choices" id="choices"></div>
     </section>
@@ -37,6 +38,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 
 const setupPanel = document.querySelector<HTMLDivElement>("#setupPanel")!;
 const scenePanel = document.querySelector<HTMLDivElement>("#scenePanel")!;
+const storyLog = document.querySelector<HTMLDivElement>("#storyLog")!;
 const sceneText = document.querySelector<HTMLDivElement>("#sceneText")!;
 const choices = document.querySelector<HTMLDivElement>("#choices")!;
 const statusText = document.querySelector<HTMLParagraphElement>("#status")!;
@@ -99,16 +101,19 @@ function render() {
 
   sceneText.textContent = currentBeat.scene;
   setTheme(currentBeat.backgroundColor);
+  renderStoryLog();
   choices.innerHTML = "";
 
   for (const choice of currentBeat.choices) {
     const button = document.createElement("button");
+    const id = document.createElement("span");
+    const label = document.createElement("strong");
+
     button.className = "choice-button";
     button.type = "button";
-    button.innerHTML = `
-      <span>${choice.id}</span>
-      <strong>${choice.label}</strong>
-    `;
+    id.textContent = choice.id;
+    label.textContent = choice.label;
+    button.append(id, label);
     button.addEventListener("click", () => {
       void choose(choice);
     });
@@ -117,10 +122,28 @@ function render() {
 
   renderHistory();
   renderDisabledState();
+  scrollToCurrentScene();
 }
 
 function renderHistory() {
   document.title = engine.turnCount ? `tales (${engine.turnCount})` : "tales";
+}
+
+function renderStoryLog() {
+  storyLog.innerHTML = "";
+
+  for (const record of engine.records) {
+    const item = document.createElement("section");
+    const scene = document.createElement("p");
+    const choice = document.createElement("p");
+
+    item.className = "story-log-item";
+    scene.textContent = record.scene;
+    choice.className = "story-log-choice";
+    choice.textContent = `${record.choice.id}. ${record.choice.label}`;
+    item.append(scene, choice);
+    storyLog.append(item);
+  }
 }
 
 function renderDisabledState() {
@@ -141,6 +164,7 @@ function resetStory() {
   engine.destroy();
   clearTheme();
   sceneText.textContent = "";
+  storyLog.innerHTML = "";
   choices.innerHTML = "";
   renderHistory();
   statusText.textContent = "";
@@ -173,4 +197,33 @@ function isDark(color: string) {
   const blue = Number.parseInt(color.slice(5, 7), 16);
 
   return (red * 299 + green * 587 + blue * 114) / 1000 < 140;
+}
+
+function scrollToCurrentScene() {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      smoothScrollTo(Math.max(sceneText.offsetTop - 96, 0), 1100);
+    });
+  });
+}
+
+function smoothScrollTo(target: number, duration: number) {
+  const start = window.scrollY;
+  const distance = target - start;
+  const startedAt = performance.now();
+
+  function step(now: number) {
+    const progress = Math.min((now - startedAt) / duration, 1);
+    window.scrollTo({ top: start + distance * easeInOutCubic(progress) });
+
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  }
+
+  requestAnimationFrame(step);
+}
+
+function easeInOutCubic(value: number) {
+  return value < 0.5 ? 4 * value ** 3 : 1 - (-2 * value + 2) ** 3 / 2;
 }
