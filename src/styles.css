@@ -162,11 +162,6 @@ button {
   text-align: left;
 }
 
-.choice-button span {
-  margin-right: 6px;
-  font-weight: 700;
-}
-
 .choice-button small {
   display: none;
 }

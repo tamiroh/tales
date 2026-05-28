@@ -112,14 +112,12 @@ function render() {
 
   for (const choice of currentBeat.choices) {
     const button = document.createElement("button");
-    const id = document.createElement("span");
     const label = document.createElement("strong");
 
     button.className = "choice-button";
     button.type = "button";
-    id.textContent = choice.id;
     label.textContent = choice.label;
-    button.append(id, label);
+    button.append(label);
     button.addEventListener("click", () => {
       void choose(choice);
     });
@@ -147,7 +145,7 @@ function renderStoryLog() {
     item.className = "story-log-item";
     scene.textContent = record.scene;
     choice.className = "story-log-choice";
-    choice.textContent = `${record.choice.id}. ${record.choice.label}`;
+    choice.textContent = record.choice.label;
     item.append(scene, choice);
     storyLog.append(item);
   }
