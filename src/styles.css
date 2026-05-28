@@ -108,6 +108,12 @@ h1 {
   font-weight: 700;
 }
 
+.current-story {
+  display: grid;
+  gap: 16px;
+  will-change: transform;
+}
+
 label {
   display: grid;
   gap: 6px;

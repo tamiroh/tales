@@ -2,6 +2,7 @@ import "./styles.css";
 import { StoryEngine, type StoryBeat, type StoryChoice } from "./story";
 
 const genres = ["幻想譚", "SF", "ミステリー", "冒険", "日常の異変"];
+const headerOffset = 96;
 
 const engine = new StoryEngine();
 
@@ -28,8 +29,10 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 
     <section class="scene hidden" id="scenePanel">
       <div class="story-log" id="storyLog"></div>
-      <p id="sceneText"></p>
-      <div class="choices" id="choices"></div>
+      <div class="current-story" id="currentStory">
+        <p id="sceneText"></p>
+        <div class="choices" id="choices"></div>
+      </div>
     </section>
 
     <p class="status" id="status"></p>
@@ -39,6 +42,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 const setupPanel = document.querySelector<HTMLDivElement>("#setupPanel")!;
 const scenePanel = document.querySelector<HTMLDivElement>("#scenePanel")!;
 const storyLog = document.querySelector<HTMLDivElement>("#storyLog")!;
+const currentStory = document.querySelector<HTMLDivElement>("#currentStory")!;
 const sceneText = document.querySelector<HTMLDivElement>("#sceneText")!;
 const choices = document.querySelector<HTMLDivElement>("#choices")!;
 const statusText = document.querySelector<HTMLParagraphElement>("#status")!;
@@ -99,6 +103,8 @@ function render() {
     return;
   }
 
+  const previousTop = scenePanel.classList.contains("hidden") ? null : currentStory.getBoundingClientRect().top;
+
   sceneText.textContent = currentBeat.scene;
   setTheme(currentBeat.backgroundColor);
   renderStoryLog();
@@ -122,6 +128,7 @@ function render() {
 
   renderHistory();
   renderDisabledState();
+  animateCurrentStoryFrom(previousTop);
   scrollToCurrentScene();
 }
 
@@ -202,8 +209,29 @@ function isDark(color: string) {
 function scrollToCurrentScene() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      smoothScrollTo(Math.max(sceneText.offsetTop - 96, 0), 1100);
+      smoothScrollTo(Math.max(currentStory.offsetTop - headerOffset, 0), 1100);
     });
+  });
+}
+
+function animateCurrentStoryFrom(previousTop: number | null) {
+  if (previousTop === null) {
+    return;
+  }
+
+  const delta = previousTop - currentStory.getBoundingClientRect().top;
+
+  if (Math.abs(delta) < 1) {
+    return;
+  }
+
+  currentStory.style.transition = "none";
+  currentStory.style.transform = `translateY(${delta}px)`;
+  currentStory.getBoundingClientRect();
+
+  requestAnimationFrame(() => {
+    currentStory.style.transition = "transform 700ms ease";
+    currentStory.style.transform = "translateY(0)";
   });
 }
 
